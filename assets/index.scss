@@ -1,0 +1,31 @@
+body {
+  background: #414141;
+  color: white;
+}
+*{
+  box-sizing: border-box;
+}
+.fs-14 {
+  font-size: 14px;
+}
+.cp {
+  cursor: pointer;
+}
+.bg-red {
+  background: red;
+}
+.fw-bold {
+  font-weight: bold;
+}
+.fw-600 {
+  font-weight: 600;
+}
+a{
+  text-decoration: none;
+  &:hover{
+    text-decoration: none;
+  }
+}
+.b-sh-l{
+box-shadow: 1px 3px 5px 0px black;
+}
