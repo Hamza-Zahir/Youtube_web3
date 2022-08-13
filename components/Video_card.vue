@@ -1,21 +1,20 @@
 <template>
   <div class="text-light video_card">
-    <nuxt-link to="/">
+    <nuxt-link to="/WtchVideo/1" class="text-light">
       <iframe
         class="video"
         src="https://www.youtube.com/embed/x5WNBPWZ21w"
       ></iframe>
-    </nuxt-link>
+
 
     <div class="ml-2 mb-2 d-flex align-items- fw-bold">
-      <span>
-        <nuxt-link
-          to="/"
-          class="userProfil rounded-circle d-flex justify-content-center align-items-center mr-1 mt-1 text-light"
+      <div class="">
+        <span
+          class="userProfil rounded-circle d-flex justify-content-center align-items-center mr-1 mt-1"
         >
           H
-        </nuxt-link>
-      </span>
+        </span>
+      </div>
       <div class="">
         <span class="title"
           >tetle of video elit. Unde, excepturi Lorem ipsum dolor sit amet.
@@ -24,6 +23,7 @@
       </div>
       <b-icon icon="three-dots-vertical" class="cp mt-1 h5"></b-icon>
     </div>
+    </nuxt-link>
   </div>
 </template>
 <style lang="scss" scoped>

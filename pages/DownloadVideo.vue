@@ -62,7 +62,7 @@
           <video
             :src="`https://ipfs.infura.io/ipfs/${videoHash}`"
             controls
-            class="mx-auto"
+            class="mx-auto "
           ></video>
         </div>
 
@@ -124,6 +124,9 @@ export default {
     border: none;
     border-bottom: 2px solid #838383;
     background: #d3f3fd;
+  }
+  video{
+    max-width: 100%;
   }
 }
 </style>
