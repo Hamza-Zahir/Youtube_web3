@@ -4,37 +4,34 @@ pragma solidity >=0.4.22 <0.9.0;
 import "./Comments.sol";
 
 contract Replys is Comments {
-
     //  -------------------- Reply functions ---------------------:
     function addReply(
         uint256 _videoId,
         uint256 _commentId,
         string memory _replyComent
     ) public {
-        uint256 replyId = videos[_videoId]
-            .comments[_commentId - 1]
-            .replis
+        require(userId[msg.sender] != 0);
+
+        uint256 _replyId = videoComments[_videoId][_commentId]
+            .repliesIds
             .length + 1;
 
-        reply storage _replyStract = videos[_videoId]
-            .comments[_commentId - 1]
-            .replis[replyId - 1];
+        reply storage _reply = commentReplies[_videoId][_commentId][_replyId];
 
-        _replyStract.id = replyId;
-        _replyStract.owner = msg.sender;
-        _replyStract.reply = _replyComent;
-        _replyStract.timestamp = block.timestamp;
+        _reply.id = _replyId;
+        _reply.owner = msg.sender;
+        _reply.reply = _replyComent;
+        _reply.timestamp = block.timestamp;
 
-        // videos[_videoId].comments[_commentId - 1].replis.push(
-        //     reply(
-        //         replyId,
-        //         msg.sender,
-        //         _reply,
-        //         block.timestamp,
-        //         _likes,
-        //         _dislike
-        //     )
-        // );
+        videoComments[_videoId][_commentId].repliesIds.push(_replyId);
+    }
+
+    function getCommentReply(
+        uint256 _videoId,
+        uint256 _commentId,
+        uint256 _replyId
+    ) public view returns (reply memory) {
+        return commentReplies[_videoId][_commentId][_replyId];
     }
 
     function deletReply(
@@ -42,19 +39,24 @@ contract Replys is Comments {
         uint256 _commentId,
         uint256 _replyId
     ) public {
+        require(userId[msg.sender] != 0);
+        require(
+            commentReplies[_videoId][_commentId][_replyId].owner ==
+                msg.sender ||
+                videos[_videoId].owner == msg.sender
+        );
         require(_commentId > 0 && _videoId > 0 && _replyId > 0);
 
-        if (
-            videos[_videoId]
-                .comments[_commentId - 1]
-                .replis[_replyId - 1]
-                .owner ==
-            msg.sender ||
-            videos[_videoId].owner == msg.sender
+        delete (commentReplies[_videoId][_commentId][_replyId]);
+
+        for (
+            uint256 i = 0;
+            i < videoComments[_videoId][_commentId].repliesIds.length;
+            i++
         ) {
-            delete (
-                videos[_videoId].comments[_commentId - 1].replis[_replyId - 1]
-            );
+            if (videoComments[_videoId][_commentId].repliesIds[i] == _replyId) {
+                delete (videoComments[_videoId][_commentId].repliesIds[i]);
+            }
         }
     }
 
@@ -63,34 +65,34 @@ contract Replys is Comments {
         uint256 _commentId,
         uint256 _replyId
     ) public {
+        require(userId[msg.sender] != 0);
+
         uint256 _LikesIndex = _alreadyReact(
-            videos[_videoId]
-                .comments[_commentId - 1]
-                .replis[_replyId - 1]
-                .likes,
+            commentReplies[_videoId][_commentId][_replyId].likes,
             msg.sender
         );
         uint256 _DislikeIndex = _alreadyReact(
-            videos[_videoId]
-                .comments[_commentId - 1]
-                .replis[_replyId - 1]
-                .dislike,
+            commentReplies[_videoId][_commentId][_replyId].dislike,
             msg.sender
         );
 
         if (_LikesIndex == 0) {
-            videos[_videoId]
-                .comments[_commentId - 1]
-                .replis[_replyId - 1]
-                .likes
-                .push(msg.sender);
-        }
-        if (_DislikeIndex > 0) {
+            commentReplies[_videoId][_commentId][_replyId].likes.push(
+                msg.sender
+            );
+
+            if (_DislikeIndex > 0) {
+                delete (
+                    commentReplies[_videoId][_commentId][_replyId].dislike[
+                        _DislikeIndex - 1
+                    ]
+                );
+            }
+        } else {
             delete (
-                videos[_videoId]
-                    .comments[_commentId - 1]
-                    .replis[_replyId - 1]
-                    .dislike[_DislikeIndex - 1]
+                commentReplies[_videoId][_commentId][_replyId].likes[
+                    _LikesIndex - 1
+                ]
             );
         }
     }
@@ -100,34 +102,34 @@ contract Replys is Comments {
         uint256 _commentId,
         uint256 _replyId
     ) public {
+        require(userId[msg.sender] != 0);
+
         uint256 _LikesIndex = _alreadyReact(
-            videos[_videoId]
-                .comments[_commentId - 1]
-                .replis[_replyId - 1]
-                .likes,
+            commentReplies[_videoId][_commentId][_replyId].likes,
             msg.sender
         );
         uint256 _DislikeIndex = _alreadyReact(
-            videos[_videoId]
-                .comments[_commentId - 1]
-                .replis[_replyId - 1]
-                .dislike,
+            commentReplies[_videoId][_commentId][_replyId].dislike,
             msg.sender
         );
 
         if (_DislikeIndex == 0) {
-            videos[_videoId]
-                .comments[_commentId - 1]
-                .replis[_replyId - 1]
-                .dislike
-                .push(msg.sender);
-        }
-        if (_LikesIndex > 0) {
+            commentReplies[_videoId][_commentId][_replyId].dislike.push(
+                msg.sender
+            );
+
+            if (_LikesIndex > 0) {
+                delete (
+                    commentReplies[_videoId][_commentId][_replyId].likes[
+                        _LikesIndex - 1
+                    ]
+                );
+            }
+        } else {
             delete (
-                videos[_videoId]
-                    .comments[_commentId - 1]
-                    .replis[_replyId - 1]
-                    .likes[_LikesIndex - 1]
+                commentReplies[_videoId][_commentId][_replyId].dislike[
+                    _DislikeIndex - 1
+                ]
             );
         }
     }

@@ -9,15 +9,26 @@
           </div>
         </div>
         <div class="my-3 d-sm-flex align-items-center">
-          <label for="" class="col-sm-3">User Name : </label>
-          <input
-            type="text"
-            name="userNume"
-            id=""
-            placeholder="User Name"
-            class="userNume px-2 py-1 col"
-            maxlength="25"
-          />
+          <label for="" class="col-sm-3">User Name :</label>
+          <div class="col p-0 m-0">
+            <small class="text-danger" v-if="userNameImpti"
+              >! The userName cannot be empty</small
+            >
+            <input
+              type="text"
+              name="userNume"
+              id=""
+              placeholder="User Name"
+              class="userNume px-2 py-1 col"
+              maxlength="25"
+              @change="
+                (e) => {
+                  userNameImpti = false;
+                  userName = e.target.value;
+                }
+              "
+            />
+          </div>
         </div>
         <div class="my-3 d-sm-flex align-items-center">
           <label for=""
@@ -29,21 +40,21 @@
             @change="
               (e) => {
                 imgHash = '';
-                handelFile(e.target.files[0]);
+                storeFiles(e.target.files);
               }
             "
           />
         </div>
         <div class="mx-auto profil-img" v-if="imgHash">
           <img
-            :src="`https://ipfs.infura.io/ipfs/${imgHash}`"
+            :src="`https://ipfs.io/ipfs/${imgHash}`"
             alt=""
             class="rounded-circle"
           />
         </div>
 
         <div class="text-right mt-4">
-          <div class="btn btn-primary mx-4 mb-3">Sign Up</div>
+          <div class="btn btn-primary mx-4 mb-3" @click="SignUp()">Sign Up</div>
         </div>
       </form>
     </div>
@@ -51,37 +62,61 @@
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
-import create from "ipfs-http-client";
-const client = new create({
-  host: "ipfs.infura.io",
-  port: 5001,
-  protocol: "https",
-});
+import plugins from "../plugins";
+import { Web3Storage } from "web3.storage/dist/bundle.esm.min.js";
+// import axios from 'axios'
+//  axios.create({
+//   apiToken: process.env.apiToken
+// })
+let apiToken = process.env.API_TOKEN;
+
+
 export default {
   data() {
     return {
       imgHash: "",
       userName: "",
+      userNameImpti: false,
     };
   },
   computed: {
     ...mapGetters(["CurrentAccount"]),
     ...mapGetters(["ChainId"]),
   },
-  mounted() {
-    // this.getLocation()
-  },
+  mounted() {},
   methods: {
-    // ...mapActions(["connectMetamask"]),
-    // ...mapActions(["checkWalletIsConnected"]),
-    async handelFile(file) {
-      const added = await client.add(file);
-      this.imgHash = added[0].hash;
-      // console.log( this.imgHash)
+    ...mapActions(["checkWalletIsConnected"]),
+
+    async SignUp() {
+      if (!this.userName) {
+        this.userNameImpti = true;
+      } else if (this.CurrentAccount && this.userName && this.ChainId !== 97) {
+        alert("please switch to binance testnet network");
+      } else if (this.CurrentAccount && this.userName && this.ChainId == 97) {
+        plugins
+          .signUp(this.userName, this.imgHash, this.CurrentAccount)
+          .then(async () => {
+            await this.checkWalletIsConnected();
+            this.imgHash = "";
+            this.userName = "";
+            this.userNameImpti = false;
+          });
+      }
     },
-    // getLocation(){
-    //   console.log(window.location.href)
-    // }
+    async makeStorageClient() {
+      const client = new Web3Storage({ token: apiToken });
+      return client;
+    },
+
+    async storeFiles(_file) {
+      try {
+        const client = await this.makeStorageClient();
+        const cid = await client.put(_file);
+        this.imgHash = `${cid}/${_file[0].name}`;
+      } catch (error) {
+        console.log(error);
+      }
+    },
   },
 };
 </script>
@@ -91,7 +126,7 @@ export default {
   color: white;
   max-width: 600px;
   border-radius: 10px;
-   margin-top: 50px;
+  margin-top: 50px;
 
   .account {
     font-size: 11px;

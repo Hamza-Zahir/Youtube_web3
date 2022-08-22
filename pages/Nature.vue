@@ -4,15 +4,33 @@
     <div class="d-flex flex-wrap mt-3">
       <div
         class="py-2 col-12 col-sm-6 col-lg-4 col-xl-3"
-        v-for="i in 20"
-        :key="i"
+        v-for="video in NatureVideos"
+        :key="video.id"
       >
-        <videoCard />
+        <videoCard :video="video" />
       </div>
     </div>
   </div>
 </template>
 
+
 <script>
-export default {};
+import { mapActions, mapGetters } from "vuex";
+// import plugins from "~/plugins";
+export default {
+  data() {
+    return {
+    };
+  },
+  computed: {
+    ...mapGetters("loadBlockchainData", ["NatureVideos"]),
+  },
+  mounted() {
+    // this.getAllVideos();
+  },
+  methods: {
+    // ...mapActions("loadBlockchainData", ["getAllVideos"]),
+
+  },
+};
 </script>

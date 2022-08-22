@@ -28,7 +28,8 @@ contract("Videos", (accounts) => {
 
     const _videoHash = "videoHash";
     const _videoTayp = "Music";
-    await contractInstance.downloadVideo(_videoHash, _videoTayp, {
+    const _videoTitle = "same title";
+    await contractInstance.downloadVideo(_videoHash, _videoTayp, _videoTitle, {
       from: accounts[0],
     });
 
@@ -43,7 +44,7 @@ contract("Videos", (accounts) => {
     assert.equal(_video.owner, accounts[0]);
     assert.equal(_video.likes.length, 0);
     assert.equal(_video.dislike.length, 0);
-    assert.equal(_video.comments.length, 0);
+    assert.equal(_video.commentsIds.length, 0);
   });
 
   it("like and dislike Video ", async () => {
@@ -95,10 +96,11 @@ contract("Videos", (accounts) => {
     const _videoTayp2 = "animals";
     const _videoHash3 = "video3Hash";
     const _videoTayp3 = "Music";
-    await contractInstance.downloadVideo(_videoHash2, _videoTayp2, {
+    const _videoTitle = "same title";
+    await contractInstance.downloadVideo(_videoHash2, _videoTayp2, _videoTitle, {
       from: accounts[1],
     });
-    await contractInstance.downloadVideo(_videoHash3, _videoTayp3, {
+    await contractInstance.downloadVideo(_videoHash3, _videoTayp3, _videoTitle, {
       from: accounts[1],
     });
     const _vidios = await contractInstance.getAllVideos();
@@ -143,7 +145,6 @@ contract("Videos", (accounts) => {
 
     const _userData = await contractInstance.getUserByAddress(accounts[1]);
 
-// console.log(_userData);
     assert.equal(_userData.userVideos.length, 2);
     assert.equal(_userData.userVideos[0], 0);
     assert.equal(_userData.userVideos[1], 3);
@@ -154,7 +155,7 @@ contract("Videos", (accounts) => {
     assert.equal(_video.owner, 0x0000000000000000000000000000000000000000);
     assert.equal(_video.likes.length, 0);
     assert.equal(_video.dislike.length, 0);
-    assert.equal(_video.comments.length, 0);
+    assert.equal(_video.commentsIds.length, 0);
 
   });
 

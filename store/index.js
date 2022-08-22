@@ -1,24 +1,16 @@
 import Web3 from "web3";
-// import big from "big.js";
-// import dataCcontract from "../smart_contract/build/contracts/Donation.json";
-// const AbiCcontract = dataCcontract.abi;
-// const contractAddres = "0x2Dc28C932d45A44E3A6aEa32C8c470774591AbfF";
-
-
+import plugins from "../plugins";
 
 const state = {
   CurrentAccount: "",
   ChainId: "",
-  // AllImages: [],
-
+  User: "",
 };
 
 const getters = {
   CurrentAccount: (state) => state.CurrentAccount,
   ChainId: (state) => state.ChainId,
-  // AllImages: (state) => state.AllImages,
-
-
+  User: (state) => state.User,
 };
 const actions = {
   async connectMetamask({ commit }) {
@@ -40,7 +32,6 @@ const actions = {
           commit("setChainId", Number(resalt));
         });
         // window.location.reload();
-
       } catch (switchError) {
         console.log(switchError);
         if (switchError.code === 4902) {
@@ -72,90 +63,59 @@ const actions = {
             await ethereum.request({ method: "eth_chainId" }).then((resalt) => {
               commit("setChainId", Number(resalt));
             });
-            // ethereum.on("chainChanged", handleChainChanged);
-            // function handleChainChanged(_chainId) {
-            //   window.location.reload();
-            // }
-            // window.location.reload();
-
-
-
-
           } catch (error) {
             console.log(error);
           }
         }
+      }
+      if (this.state.CurrentAccount) {
+        const _user = await plugins.getUserByAddress(this.state.CurrentAccount);
+        if(Number(_user.id)){
+          commit("setUser", _user);
+        }
+
       }
     }
   },
   async checkWalletIsConnected({ commit }) {
     const ethereum = await window.ethereum;
     if (!ethereum) {
-
-    }else{
       commit("setChainId", "no ethereum");
-
-    let web3 = new Web3(Web3.givenProvider || ethereum);
-    let accounts = await web3.eth.getAccounts();
-    if (accounts.length) {
-      commit("setCurrentAccount", accounts[0]);
-    }
-    await ethereum.request({ method: "eth_chainId" }).then((resalt) => {
+    } else {
+      let web3 = new Web3(Web3.givenProvider || ethereum);
+      let accounts = await web3.eth.getAccounts();
+      if (accounts.length) {
+        commit("setCurrentAccount", accounts[0]);
+      }
+      await ethereum.request({ method: "eth_chainId" }).then((resalt) => {
         commit("setChainId", Number(resalt));
       });
+      if (this.state.CurrentAccount) {
+        const _user = await plugins.getUserByAddress(this.state.CurrentAccount);
+        if(Number(_user.id)){
+          commit("setUser", _user);
+        }
+      }
     }
-          function handleAccountsChanged(accounts) {
-          commit("setCurrentAccount", accounts[0]);
-        }
-        function handleChainChanged(_chainId) {
-          commit("setChainId", Number(_chainId));
-        }
-        const handleDisconnect = () => {
-          disconnect();
-        };
-        // ......................................
-        ethereum.on("accountsChanged", handleAccountsChanged);
-        ethereum.on("chainChanged", handleChainChanged);
-        ethereum.on("disconnect", handleDisconnect);
+    function handleAccountsChanged(accounts) {
+      commit("setCurrentAccount", accounts[0]);
+    }
+    function handleChainChanged(_chainId) {
+      commit("setChainId", Number(_chainId));
+    }
+    const handleDisconnect = () => {
+      disconnect();
+    };
+    // ......................................
+    ethereum.on("accountsChanged", handleAccountsChanged);
+    ethereum.on("chainChanged", handleChainChanged);
+    ethereum.on("disconnect", handleDisconnect);
   },
-  // async getAllImages({ commit }) {
-  //       try {
-  //         let _AllImages = [];
-  //         const ethereum = await window.ethereum;
-  //         if (ethereum) {
-  //           const web3 = new Web3(Web3.givenProvider || ethereum);
-  //           const DonationContract = new web3.eth.Contract(
-  //             AbiCcontract,
-  //             contractAddres
-  //           );
-  //           const _imageCount = await DonationContract.methods.imageCount().call();
-
-  //             for (let i = 1; i <= Number(_imageCount); i++) {
-  //               const _image = await DonationContract.methods.images(i).call();
-
-  //               const _donationAmount= big(_image.donationAmount)
-  //               .div(10 ** 18)
-  //               .toFixed();
-
-  //               _AllImages.push({
-  //                 id: _image.id,
-  //                 imgHash: _image.imgHash,
-  //                 description: _image.description,
-  //                 donationAmount: _donationAmount,
-  //                 author: _image.author,
-  //               });
-  //             }
-  //           commit("setAllImages", _AllImages);
-  //         }
-  //       } catch (error) {
-  //         console.log(error)
-  //       }
-  //     },
 };
 const mutations = {
   setCurrentAccount: (state, addres) => (state.CurrentAccount = addres),
   setChainId: (state, chainId) => (state.ChainId = chainId),
-  // setAllImages: (state, array) => (state.AllImages = array),
+  setUser: (state, _user) => (state.User = _user),
 };
 
 export default {

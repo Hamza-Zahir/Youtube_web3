@@ -88,3 +88,8 @@ sw.*
 
 # Vim swap files
 *.swp
+
+
+.etherscan_API_KEY
+.bscscan_api_key
+.secret

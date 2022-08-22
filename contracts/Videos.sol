@@ -6,13 +6,14 @@ import "./YoutubeData.sol";
 contract Videos is YoutubeData {
     //  -------------------- Video functions ---------------------:
 
-    function downloadVideo(string memory _Hash, string memory _Tayp) public {
+    function downloadVideo(string memory _Hash, string memory _Tayp, string memory _title) public {
         require(userId[msg.sender] != 0);
         videosCount++;
         video storage _video = videos[videosCount];
         _video.id = videosCount;
         _video.videoHash = _Hash;
         _video.videoTayp = _Tayp;
+        _video.videoTitle = _title;
         _video.timestamp = block.timestamp;
         _video.owner = msg.sender;
 
@@ -36,24 +37,23 @@ contract Videos is YoutubeData {
     function likeVideo(uint256 _videoId) public {
         require(userId[msg.sender] != 0);
         uint256 _LikesIndex = _alreadyReact(videos[_videoId].likes, msg.sender);
-
+        uint256 _DislikeIndex = _alreadyReact(
+            videos[_videoId].dislike,
+            msg.sender
+        );
         if (_LikesIndex == 0) {
             videos[_videoId].likes.push(msg.sender);
-            _deletDislikeVideo(_videoId);
+
+            if (_DislikeIndex > 0) {
+                delete (videos[_videoId].dislike[_DislikeIndex - 1]);
+            }
         } else {
-            _deletLikedVideo(_videoId);
-        }
-    }
-
-    function _deletLikedVideo(uint256 _videoId) private {
-        uint256 _LikesIndex = _alreadyReact(videos[_videoId].likes, msg.sender);
-
-        if (_LikesIndex > 0) {
             delete (videos[_videoId].likes[_LikesIndex - 1]);
         }
     }
 
     function dislikeVideo(uint256 _videoId) public {
+        uint256 _LikesIndex = _alreadyReact(videos[_videoId].likes, msg.sender);
         uint256 _DislikeIndex = _alreadyReact(
             videos[_videoId].dislike,
             msg.sender
@@ -61,19 +61,10 @@ contract Videos is YoutubeData {
 
         if (_DislikeIndex == 0) {
             videos[_videoId].dislike.push(msg.sender);
-
-            _deletLikedVideo(_videoId);
+            if (_LikesIndex > 0) {
+                delete (videos[_videoId].likes[_LikesIndex - 1]);
+            }
         } else {
-            _deletDislikeVideo(_videoId);
-        }
-    }
-
-    function _deletDislikeVideo(uint256 _videoId) private {
-        uint256 _DislikeIndex = _alreadyReact(
-            videos[_videoId].dislike,
-            msg.sender
-        );
-        if (_DislikeIndex > 0) {
             delete (videos[_videoId].dislike[_DislikeIndex - 1]);
         }
     }
@@ -84,7 +75,6 @@ contract Videos is YoutubeData {
 
     function functionPublic() public pure returns (uint256[] memory) {
         uint256[] memory newArray;
-        // newArray[0] = 1;
 
         return newArray;
     }

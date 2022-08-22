@@ -14,6 +14,7 @@ contract YoutubeData {
         address userAddress;
         string profileImag;
         uint256[] userVideos;
+        uint256[] videoSaved;
     }
     struct reply {
         uint256 id;
@@ -30,18 +31,19 @@ contract YoutubeData {
         uint256 timestamp;
         address[] likes;
         address[] dislike;
-        reply[] replis;
+        uint256[] repliesIds;
     }
 
     struct video {
         uint256 id;
         string videoHash;
         string videoTayp;
+        string videoTitle;
         uint256 timestamp;
         address owner;
         address[] likes;
         address[] dislike;
-        comment[] comments;
+        uint256[] commentsIds;
     }
 
     uint256 public usersCount;
@@ -50,17 +52,8 @@ contract YoutubeData {
     mapping(address => uint256) public userId;
     mapping(uint256 => user) public users;
     mapping(uint256 => video) public videos;
-    // mapping(string => video[]) public videosByType;
-
-    function deletUser(address _user) public {
-        require(msg.sender == admin);
-        uint256 _userId = userId[_user];
-        delete (users[_userId]);
-
-        for (uint256 i = 0; i <= users[_userId].userVideos.length; i++) {
-            delete (videos[users[_userId].userVideos[i]]);
-        }
-    }
+    mapping(uint256 => mapping(uint256 => comment)) videoComments;
+    mapping(uint256 => mapping(uint256 => mapping(uint256 => reply))) commentReplies;
 
     function signUp(string memory _userName, string memory _profileImag)
         public
@@ -76,21 +69,6 @@ contract YoutubeData {
         _user.profileImag = _profileImag;
 
         userId[msg.sender] = usersCount;
-    }
-
-    // Change personal information
-    function changeName(string memory _newUserName) public {
-        uint256 _userId = userId[msg.sender];
-
-        require(users[_userId].userAddress == msg.sender);
-        users[_userId].userName = _newUserName;
-    }
-
-    function changeProfileImag(string memory _profileImag) public {
-        uint256 _userId = userId[msg.sender];
-
-        require(users[_userId].userAddress == msg.sender);
-        users[_userId].profileImag = _profileImag;
     }
 
     function _alreadyReact(address[] memory _interactors, address _owner)

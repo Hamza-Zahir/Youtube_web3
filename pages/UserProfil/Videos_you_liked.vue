@@ -1,20 +1,18 @@
 <template>
   <div class="">
     <Header />
-    <div v-if="false">
+    <div v-if="LikedVideos.length">
       <div class="d-flex flex-wrap mt-3">
         <div
           class="py-2 col-12 col-sm-6 col-lg-4 col-xl-3"
-          v-for="i in 20"
-          :key="i"
+          v-for="video in LikedVideos"
+          :key="video.id"
         >
-          <div class="border border-secondary">
-            <videoCard />
-          </div>
+            <VideoCard :video="video" class="h-100" />
         </div>
       </div>
     </div>
-    <div v-if="true" class="impty text-center py-5 px-3">
+    <div v-if="!LikedVideos.length" class="impty text-center py-5 px-3">
       <div class="img my-3">
         <img
           src="https://www.gstatic.com/youtube/img/channels/empty_channel_dark_illustration.svg"
@@ -22,33 +20,56 @@
         />
       </div>
       <h2 class="my-4">There are no liked videos yet !</h2>
-      <p>
-        Watch the available videos now
-      </p>
+      <p>Watch the available videos now</p>
       <nuxt-link to="/" class="btn btn-primary my-2"> Watch Videos </nuxt-link>
     </div>
+    <span class="d-none">{{ getLikedVideos() }}</span>
+
   </div>
 </template>
 <script>
-import { mapActions, mapGetters } from "vuex";
-import Header from "../../components/UserProfil/header.vue";
+import { mapGetters } from "vuex";
+import Header from "~/components/UserProfil/header.vue";
+import VideoCard from "~/components/Video_card.vue"
 
 export default {
   data() {
-    return {};
+    return {
+      LikedVideos: [],
+    };
   },
   computed: {
     ...mapGetters(["CurrentAccount"]),
     ...mapGetters(["ChainId"]),
+    ...mapGetters("loadBlockchainData", ["AllVideos"]),
   },
-  components: { Header },
+  mounted() {
+  },
+  methods: {
+
+
+    async getLikedVideos() {
+      this.AllVideos.map((video) => {
+        if (video.likes.length) {
+          for (let i = 0; i < video.likes.length; i++) {
+            if (
+              video.likes[i] === this.CurrentAccount && !this.LikedVideos.includes(video)
+            ) {
+              this.LikedVideos.push(video);
+            }
+          }
+        }
+      });
+    },
+  },
+  components: { Header, VideoCard },
 };
 </script>
 <style lang="scss" scoped>
 .impty {
   background: #161616;
-  img{
-max-width: 250px;
+  img {
+    max-width: 250px;
   }
 }
 </style>

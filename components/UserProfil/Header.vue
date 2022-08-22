@@ -1,22 +1,34 @@
 <template>
-  <div class="px-1">
+  <div v-if="User" class="px-1">
     <div class="uderImg p-2">
       <div class="d-flex align-items-center">
         <h1
+          v-if="!User.profileImag"
           class="rounded-circle ml-1 ml-sm-3 cp userProfil d-flex justify-content-center align-items-center fw-bold text-light"
         >
-          H
+          {{ User.userName[0] }}
         </h1>
-        <!--  <h1
-        class="rounded-circle ml-1 ml-sm-3 cp userProfil d-flex justify-content-center align-items-center fw-bold text-light"
-      >
-        H
-      </h1> -->
+        <h1
+          v-if="User.profileImag"
+          class="rounded-circle ml-1 ml-sm-3 cp userimg"
+        >
+          <img
+            :src="`https://ipfs.io/ipfs/${User.profileImag}`"
+            alt=""
+            class="w-100 h-100 rounded-circle"
+          />
+        </h1>
+        <!--   <nuxt-link
+            v-if="User.profileImag"
+            to="/UserProfil"
+            class="cp rounded-circle ml-1 ml-sm-3 cp userProfil"
+            >
+          </nuxt-link> -->
         <div class="ml-3">
-          <h4 class="m-0">User Name</h4>
+          <h4 class="m-0">{{ User.userName }}</h4>
           <small class="p-0 m-0">{{
-            `${CurrentAccount.slice(0, 6)}...${CurrentAccount.slice(
-              CurrentAccount.length - 6
+            `${User.userAddress.slice(0, 8)}...${User.userAddress.slice(
+              User.userAddress.length - 8
             )}`
           }}</small>
         </div>
@@ -44,6 +56,7 @@ export default {
   computed: {
     ...mapGetters(["CurrentAccount"]),
     ...mapGetters(["ChainId"]),
+    ...mapGetters(["User"]),
   },
 };
 </script>
@@ -56,6 +69,10 @@ export default {
   width: 75px;
   height: 75px;
   background: #ff7676;
+}
+.userimg {
+  width: 75px;
+  height: 75px;
 }
 .NavBar {
   border-bottom: 1px solid #505050;

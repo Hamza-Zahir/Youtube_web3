@@ -23,13 +23,13 @@
         </div>
         <nuxt-link
           to="/SignUp"
-          v-if="CurrentAccount && false"
+          v-if="CurrentAccount && !User"
           class="btn fs-14 py-1 fw-600 wallet-btn text-light"
         >
           Sign Up
         </nuxt-link>
 
-        <div v-if="CurrentAccount && true" class="d-flex align-items-center">
+        <div v-if="CurrentAccount && User" class="d-flex align-items-center">
           <nuxt-link to="/DownloadVideo">
             <img
               src="../assets/images/add-video.png"
@@ -43,14 +43,24 @@
           </nuxt-link>
 
           <nuxt-link
+            v-if="!User.profileImag"
             to="/UserProfil"
             class="btn wallet-btn rounded-circle ml-1 ml-sm-3 cp userProfil d-flex justify-content-center align-items-center fw-bold text-light"
-            >H</nuxt-link
+            >{{ User.userName[0] }}</nuxt-link
           >
+          <nuxt-link
+            v-if="User.profileImag"
+            to="/UserProfil"
+            class="cp rounded-circle ml-1 ml-sm-3 cp userProfil"
+            ><img
+              :src="`https://ipfs.io/ipfs/${User.profileImag}`"
+              alt=""
+              class="w-100 h-100 rounded-circle"
+            />
+          </nuxt-link>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 <script>
@@ -58,17 +68,19 @@ import { mapActions, mapGetters } from "vuex";
 
 export default {
   data() {
-    return {
-
-    };
+    return {};
   },
   computed: {
     ...mapGetters(["CurrentAccount"]),
     ...mapGetters(["ChainId"]),
+    ...mapGetters(["User"]),
+  },
+  mounted() {
+    this.getAllVideos();
   },
   methods: {
-    // ...mapActions(["checkWalletIsConnected"]),
     ...mapActions(["connectMetamask"]),
+    ...mapActions("loadBlockchainData", ["getAllVideos"]),
   },
 };
 </script>

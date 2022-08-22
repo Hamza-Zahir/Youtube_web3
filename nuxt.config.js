@@ -1,7 +1,7 @@
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: '11_Youtube_web3',
+    title: 'Youtube Web3',
     htmlAttrs: {
       lang: 'en'
     },
@@ -41,5 +41,8 @@ export default {
   },
   bootstrapVue: {
     icons: true,
+  },
+  env: {
+    apiToken: process.env.API_TOKEN
   },
 }
