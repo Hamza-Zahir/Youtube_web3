@@ -7,7 +7,8 @@
             v-if="!reply.owner.profileImag"
             :to="`/Userschanel/${reply.owner.id}`"
             class="userProfil text-light rounded-circle d-flex justify-content-center align-items-center mr-2 mt-1"
-          >
+        :style="`background:${
+            plugins.stringToColour(reply.owner.userName)}`"  >
             {{ reply.owner.userName[0] }}
           </nuxt-link>
           <nuxt-link
@@ -99,7 +100,7 @@ export default {
     },
   },
   data() {
-    return {};
+    return {plugins};
   },
   computed: {
     ...mapGetters(["CurrentAccount"]),

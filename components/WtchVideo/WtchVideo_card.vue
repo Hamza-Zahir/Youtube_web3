@@ -3,7 +3,9 @@
     <video
       :src="`https://ipfs.io/ipfs/${ShownVideo.videoHash}`"
       controls
-      class="mx-auto w-100"
+      autoplay
+      class="mx-auto w-100 rounded"
+      @ended="playAderVedo()"
     ></video>
     <div class="px-2">
       <h4 class="title my-1">
@@ -92,6 +94,9 @@
           <span
             v-if="!ShownVideo.owner.profileImag"
             class="userProfil fw-bold rounded-circle d-flex justify-content-center align-items-center mr-2 mt-1 text-light"
+            :style="`background:${plugins.stringToColour(
+              ShownVideo.owner.userName
+            )}`"
           >
             {{ ShownVideo.owner.userName[0] }}
           </span>
@@ -136,13 +141,16 @@
       <div v-if="User" class="d-flex addComment border-bottom border-secondary">
         <span
           v-if="!User.profileImag"
+          :style="`background:${plugins.stringToColour(User.userName)}`"
           class="userProfil text-light rounded-circle d-flex justify-content-center align-items-center mr-2 mt-1"
         >
           {{ User.userName[0] }}
         </span>
-        <span class="userimg text-light rounded-circle d-block mr-2 mt-1">
+        <span
+          v-if="User.profileImag"
+          class="userimg text-light rounded-circle d-block mr-2 mt-1"
+        >
           <img
-            v-if="User.profileImag"
             :src="`https://ipfs.io/ipfs/${User.profileImag}`"
             alt=""
             class="w-100 h-100 rounded-circle"
@@ -213,6 +221,7 @@ export default {
       like: false,
       dislike: false,
       save: false,
+      plugins,
     };
   },
   components: {
@@ -222,6 +231,7 @@ export default {
     ...mapGetters(["CurrentAccount"]),
     ...mapGetters(["ChainId"]),
     ...mapGetters(["User"]),
+    ...mapGetters("loadBlockchainData", ["AllVideos"]),
   },
 
   mounted() {},
@@ -232,7 +242,7 @@ export default {
         await plugins
           .addComment(_videoId, this.Comment, this.CurrentAccount)
           .then(async () => {
-            this.Comment = ""
+            this.Comment = "";
             await this.getVideo();
           });
       } catch (error) {
@@ -302,18 +312,49 @@ export default {
         date.getMonth().toString().length == 1 ? "0" : ""
       }${date.getMonth()}/${date.getFullYear()}`;
     },
+    playAderVedo() {
+      const href = window.location.href.split("WtchVideo/");
+      let videoId = Number(href[1]);
+      const lastVideoId = Number(this.AllVideos[0].id);
+      let availableIds = [];
+      this.AllVideos.map((_vid) => {
+        availableIds.push(_vid.id);
+      });
+      let stopLop = false;
+      console.log(videoId);
+      console.log(lastVideoId);
+      console.log(availableIds);
+
+      if (videoId == lastVideoId) {
+        window.location.href = `${href[0]}WtchVideo/${
+          availableIds[availableIds.length - 1]
+        }`;
+      } else {
+        while (videoId < lastVideoId && !stopLop) {
+          videoId++;
+          if (availableIds.includes(videoId)) {
+            window.location.href = `${href[0]}WtchVideo/${videoId}`;
+
+            stopLop = true;
+          }
+        }
+      }
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+video {
+  max-height: 450px;
+  background: #000;
+}
 .userProfil {
-  background: #a141fa;
   width: 40px;
   height: 40px;
 }
-.userimg{
-   width: 40px;
+.userimg {
+  width: 40px;
   height: 40px;
 }
 .title {

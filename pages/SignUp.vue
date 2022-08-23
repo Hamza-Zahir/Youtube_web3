@@ -1,5 +1,9 @@
 <template>
   <div class="text-dark fw-600 p-2">
+    <div v-if="deployedError" class="deployedError m-2 rounded p-2">
+      {{ deployedError }}
+      <b-icon icon="x-lg" @click="deployedError = ''"></b-icon>
+    </div>
     <div class="form p-2 mx-auto">
       <form action="">
         <div class="my-3 d-sm-flex align-items-center">
@@ -18,6 +22,7 @@
               type="text"
               name="userNume"
               id=""
+              :value="userName"
               placeholder="User Name"
               class="userNume px-2 py-1 col"
               maxlength="25"
@@ -63,13 +68,13 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import plugins from "../plugins";
-import { Web3Storage } from "web3.storage/dist/bundle.esm.min.js";
 // import axios from 'axios'
 //  axios.create({
 //   apiToken: process.env.apiToken
 // })
-let apiToken = process.env.API_TOKEN;
-
+// let apiToken = process.env.API_TOKEN;
+const apiToken =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDc2MjZiNDgwMjk4RjYwRTJEREFmNjQwOEM0M2ExZUVkMjk2Qzg1RmIiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjA5MjUyNzg4ODksIm5hbWUiOiJ5b3V0dWJlX3dlYjMifQ.slLeKvOZA6bY4jadot3YkzUdx9_Ki-HsknM3BJdHV28";
 
 export default {
   data() {
@@ -77,6 +82,7 @@ export default {
       imgHash: "",
       userName: "",
       userNameImpti: false,
+      deployedError: "",
     };
   },
   computed: {
@@ -88,22 +94,39 @@ export default {
     ...mapActions(["checkWalletIsConnected"]),
 
     async SignUp() {
-      if (!this.userName) {
-        this.userNameImpti = true;
-      } else if (this.CurrentAccount && this.userName && this.ChainId !== 97) {
-        alert("please switch to binance testnet network");
-      } else if (this.CurrentAccount && this.userName && this.ChainId == 97) {
-        plugins
-          .signUp(this.userName, this.imgHash, this.CurrentAccount)
-          .then(async () => {
-            await this.checkWalletIsConnected();
-            this.imgHash = "";
-            this.userName = "";
-            this.userNameImpti = false;
-          });
+      try {
+        if (!this.userName) {
+          this.userNameImpti = true;
+        } else if (
+          this.CurrentAccount &&
+          this.userName &&
+          this.ChainId !== 97
+        ) {
+          alert("please switch to binance testnet network");
+        } else if (this.CurrentAccount && this.userName && this.ChainId == 97) {
+          plugins
+            .signUp(this.userName, this.imgHash, this.CurrentAccount)
+            .then(async (_signUp) => {
+              if (_signUp) {
+                await this.checkWalletIsConnected();
+                const href = window.location.href.split("SignUp");
+                window.location.href = `${href[0]}UserProfil`;
+              } else {
+                this.deployedError = "An error occurred, please try again";
+              }
+
+              this.imgHash = "";
+              this.userName = "";
+              this.userNameImpti = false;
+            });
+        }
+      } catch (error) {
+        console.log(error);
       }
     },
     async makeStorageClient() {
+      const { Web3Storage } = require("web3.storage/dist/bundle.esm.min.js");
+
       const client = new Web3Storage({ token: apiToken });
       return client;
     },
@@ -152,5 +175,12 @@ export default {
       font-size: 1rem;
     }
   }
+}
+.deployedError {
+  background: #d64f4f;
+  color: white;
+  max-width: 300px;
+  display: flex;
+  justify-content: space-between;
 }
 </style>

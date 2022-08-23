@@ -33,8 +33,7 @@ const actions = {
 
       if (ethereum) {
         const _videosCount = await YoutubeContract.methods.videosCount().call();
-
-        for (let i = 1; i <= Number(_videosCount); i++) {
+        for (let i = Number(_videosCount); i > 0; i--) {
           const _video = await plugins.getVideo(i);
 
           if (Number(_video.id) > 0) {

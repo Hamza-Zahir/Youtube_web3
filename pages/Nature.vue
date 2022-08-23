@@ -7,7 +7,7 @@
         v-for="video in NatureVideos"
         :key="video.id"
       >
-        <videoCard :video="video" />
+        <videoCard :video="video" class="h-100"  />
       </div>
     </div>
   </div>
@@ -15,8 +15,7 @@
 
 
 <script>
-import { mapActions, mapGetters } from "vuex";
-// import plugins from "~/plugins";
+import { mapGetters } from "vuex";
 export default {
   data() {
     return {
@@ -26,10 +25,8 @@ export default {
     ...mapGetters("loadBlockchainData", ["NatureVideos"]),
   },
   mounted() {
-    // this.getAllVideos();
   },
   methods: {
-    // ...mapActions("loadBlockchainData", ["getAllVideos"]),
 
   },
 };

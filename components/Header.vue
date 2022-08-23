@@ -1,6 +1,5 @@
 <template>
   <div class="header text-light py-1 px-2 px-sm-4 px-md-5">
-    <!-- d-flex justify-content-between align-items-center -->
     <div class="d-flex justify-content-between align-items-center">
       <nuxt-link to="/" class="d-flex align-items-center logo">
         <span class="">
@@ -45,8 +44,9 @@
           <nuxt-link
             v-if="!User.profileImag"
             to="/UserProfil"
-            class="btn wallet-btn rounded-circle ml-1 ml-sm-3 cp userProfil d-flex justify-content-center align-items-center fw-bold text-light"
-            >{{ User.userName[0] }}</nuxt-link
+            class="btn rounded-circle ml-1 ml-sm-3 cp userProfil d-flex justify-content-center align-items-center fw-bold text-light"
+           :style="`background:${
+            plugins.stringToColour(User.userName)}`" >{{ User.userName[0] }}</nuxt-link
           >
           <nuxt-link
             v-if="User.profileImag"
@@ -65,10 +65,13 @@
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
+import plugins from "../plugins";
 
 export default {
   data() {
-    return {};
+    return {
+      plugins
+    };
   },
   computed: {
     ...mapGetters(["CurrentAccount"]),

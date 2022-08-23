@@ -8,8 +8,10 @@
           v-for="video in Savedvideo"
           :key="video.id"
         >
-          <div class="border border-secondary">
-            <videoCard :video="video" />
+          <div
+            class="h-100 border border-secondary d-flex flex-column justify-content-between"
+          >
+            <videoCard :video="video" class="h-100" />
             <div class="text-right">
               <div
                 class="btn btn-secondary py-1 px-2 m-1"
@@ -22,10 +24,7 @@
         </div>
       </div>
     </div>
-    <div
-      v-if="!Savedvideo.length"
-      class="impty text-center py-5 px-3"
-    >
+    <div v-if="!Savedvideo.length" class="impty text-center py-5 px-3">
       <div class="img my-3">
         <img
           src="https://www.gstatic.com/youtube/img/channels/empty_channel_dark_illustration.svg"
@@ -40,7 +39,7 @@
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import Header from "~/components/UserProfil/header.vue";
 import plugins from "~/plugins";
 export default {
@@ -51,15 +50,13 @@ export default {
     };
   },
   mounted() {
-    // if(this.User){
-    //   this.getvideoSaved();
-    // }
+    this.getvideoSaved();
   },
   computed: {
-    ...mapGetters(["CurrentAccount"]),
-    ...mapGetters(["User"]),
+    ...mapGetters(["CurrentAccount", "User"]),
   },
   methods: {
+    ...mapMutations(["setUser"]),
     async getvideoSaved() {
       if (this.User && this.User.videoSaved.length) {
         for (let i = 0; i < this.User.videoSaved.length; i++) {
@@ -68,7 +65,7 @@ export default {
             !this.SavedvideoIds.includes(_video.id) &&
             this.User.videoSaved[i] > 0
           ) {
-            this.Savedvideo.push(_video);
+            this.Savedvideo.unshift(_video);
             this.SavedvideoIds.push(_video.id);
           }
         }
@@ -80,9 +77,11 @@ export default {
           await plugins
             .deleteSavedVideo(Number(_videoId), this.CurrentAccount)
             .then(async () => {
-              Savedvideo = [];
-              SavedvideoIds = [];
-              await this.getvideoSaved();
+              const _user = await plugins.getUserByAddress(this.CurrentAccount);
+              this.setUser(_user);
+               this.Savedvideo = [];
+              this.SavedvideoIds = [];
+
             });
         } else {
           alert("please connect your wallet first");
@@ -98,6 +97,7 @@ export default {
 <style lang="scss" scoped>
 .impty {
   background: #161616;
+    min-height: 100%;
   img {
     max-width: 250px;
   }

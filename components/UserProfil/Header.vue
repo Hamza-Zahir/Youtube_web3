@@ -5,7 +5,8 @@
         <h1
           v-if="!User.profileImag"
           class="rounded-circle ml-1 ml-sm-3 cp userProfil d-flex justify-content-center align-items-center fw-bold text-light"
-        >
+      :style="`background:${
+            plugins.stringToColour(User.userName)}`"   >
           {{ User.userName[0] }}
         </h1>
         <h1
@@ -18,12 +19,7 @@
             class="w-100 h-100 rounded-circle"
           />
         </h1>
-        <!--   <nuxt-link
-            v-if="User.profileImag"
-            to="/UserProfil"
-            class="cp rounded-circle ml-1 ml-sm-3 cp userProfil"
-            >
-          </nuxt-link> -->
+
         <div class="ml-3">
           <h4 class="m-0">{{ User.userName }}</h4>
           <small class="p-0 m-0">{{
@@ -47,11 +43,11 @@
   </div>
 </template>
 <script>
-import { mapActions, mapGetters } from "vuex";
-
+import {  mapGetters } from "vuex";
+import plugins from "~/plugins";
 export default {
   data() {
-    return {};
+    return {plugins};
   },
   computed: {
     ...mapGetters(["CurrentAccount"]),
@@ -68,7 +64,6 @@ export default {
 .userProfil {
   width: 75px;
   height: 75px;
-  background: #ff7676;
 }
 .userimg {
   width: 75px;

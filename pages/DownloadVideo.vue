@@ -1,5 +1,14 @@
 <template>
   <div class="AddVideo text-dark fw-600 p-2">
+    <div v-if="deployedSuccessfully" class="deployedSuccessfully m-2 rounded p-2">
+      {{ deployedSuccessfully }}
+      <b-icon icon="x-lg" @click="deployedSuccessfully = ''"></b-icon>
+    </div>
+    <div v-if="deployedError" class="deployedError m-2 rounded p-2">
+      {{ deployedError }}
+      <b-icon icon="x-lg" @click="deployedError = ''"></b-icon>
+    </div>
+
     <div class="form p-2 mx-auto">
       <h4 class="p-2 border-bottom">Download videos</h4>
       <form action="">
@@ -15,12 +24,14 @@
                 class="px-2 py-1 col fw-600"
                 @change="
                   (e) => {
+                    deployedError = '';
+                    deployedSuccessfully = '';
                     videoHashError = '';
                     storeFiles(e.target.files);
                   }
                 "
               />
-              <span class="text-light">{{ Hashcreated }}</span>
+              <!-- <span class="text-light">{{ Hashcreated }}</span> -->
             </div>
           </div>
         </div>
@@ -40,6 +51,8 @@
               accept=".mp4, .mkv .ogg .wmv"
               @input="
                 (e) => {
+                  deployedError = '';
+                  deployedSuccessfully = '';
                   videoTitleError = '';
                   videoTitle = e.target.value;
                 }
@@ -61,6 +74,8 @@
               :class="!videoType ? 'text-secondary' : ''"
               @change="
                 (e) => {
+                  deployedError = '';
+                  deployedSuccessfully = '';
                   videoTypeError = '';
                   videoType = e.target.value;
                 }
@@ -87,10 +102,16 @@
             class="mx-auto"
           ></video>
         </div>
+        <div v-if="Hashcreated" class="loading mx-auto my-2"></div>
 
         <div class="text-right mt-4">
           <div
-            class="btn btn-primary mx-4 mb-3"
+            class="btn mx-4 mb-3"
+            :class="
+              videoHash && videoType && videoTitle
+                ? 'btn-primary'
+                : 'btn-secondary text-dark'
+            "
             @click="
               () => {
                 downlodVideo();
@@ -101,7 +122,6 @@
           </div>
         </div>
       </form>
-      <!-- <img src="../assets/images/youtube.png" alt=""> -->
     </div>
   </div>
 </template>
@@ -109,13 +129,14 @@
 import { mapGetters } from "vuex";
 import videosTypes from "~/json/videos_types.json";
 import plugins from "../plugins";
-import { Web3Storage } from "web3.storage/dist/bundle.esm.min.js";
-
 // import axios from 'axios'
 //  axios.create({
 //   apiToken: process.env.apiToken
 // })
-let apiToken = process.env.API_TOKEN;
+// let apiToken = process.env.API_TOKEN;
+const apiToken =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDc2MjZiNDgwMjk4RjYwRTJEREFmNjQwOEM0M2ExZUVkMjk2Qzg1RmIiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjA5MjUyNzg4ODksIm5hbWUiOiJ5b3V0dWJlX3dlYjMifQ.slLeKvOZA6bY4jadot3YkzUdx9_Ki-HsknM3BJdHV28";
+
 export default {
   data() {
     return {
@@ -127,6 +148,8 @@ export default {
       videoTitleError: "",
       videoHashError: "",
       videoTypeError: "",
+      deployedSuccessfully: "",
+      deployedError: "",
     };
   },
   computed: {
@@ -139,19 +162,20 @@ export default {
   methods: {
     // -------------------------------------
     async makeStorageClient() {
+      const { Web3Storage } = require("web3.storage/dist/bundle.esm.min.js");
       const client = new Web3Storage({ token: apiToken });
       return client;
     },
     // ..........................................
 
-    async storeFiles (_file) {
+    async storeFiles(_file) {
       try {
         this.Hashcreated = true;
-        // const client = new Web3Storage({ token: apiToken });
         const client = await this.makeStorageClient();
         const cid = await client.put(_file);
         this.videoHash = `${cid}/${_file[0].name}`;
         this.Hashcreated = false;
+        console.log(this.videoHash)
         // ....................................................................
       } catch (error) {
         console.log(error);
@@ -160,7 +184,6 @@ export default {
     },
     async downlodVideo() {
       try {
-
         if (
           this.videoHash &&
           this.videoTitle &&
@@ -168,21 +191,26 @@ export default {
           this.CurrentAccount &&
           this.ChainId == 97
         ) {
-          await plugins.downlodVideo(
-            this.videoHash,
-            this.videoType,
-            this.videoTitle,
-            this.CurrentAccount
-          ).then(()=>{
-             videosTypes,
-      this.videoHash= ""
-      this.Hashcreated=false
-      this.videoType= ""
-      this.videoTitle= ""
-      this.videoTitleError= ""
-      this.videoHashError= ""
-      this.videoTypeError= ""
-          })
+          await plugins
+            .downlodVideo(
+              this.videoHash,
+              this.videoType,
+              this.videoTitle,
+              this.CurrentAccount
+            )
+            .then((deployed) => {
+              videosTypes, (this.videoHash = "");
+              this.Hashcreated = false;
+              this.videoTitle = "";
+              this.videoTitleError = "";
+              this.videoHashError = "";
+              this.videoTypeError = "";
+              if (deployed) {
+                this.deployedSuccessfully = "Video deployed successfully";
+              } else {
+                this.deployedError = "An error occurred, please try again";
+              }
+            });
         } else {
           if (!this.videoHash) {
             this.videoHashError = "Please upload the video file first";
@@ -200,14 +228,12 @@ export default {
         }
       } catch (error) {
         console.log(error);
-           videosTypes,
-      this.videoHash= ""
-      this.Hashcreated=false
-      this.videoType= ""
-      this.videoTitle= ""
-      this.videoTitleError= ""
-      this.videoHashError= ""
-      this.videoTypeError= ""
+        videosTypes, (this.videoHash = "");
+        this.Hashcreated = false;
+        this.videoTitle = "";
+        this.videoTitleError = "";
+        this.videoHashError = "";
+        this.videoTypeError = "";
       }
     },
   },
@@ -231,5 +257,23 @@ export default {
   video {
     max-width: 100%;
   }
+}
+.loading {
+  width: 120px;
+  height: 120px;
+}
+.deployedSuccessfully {
+  background: #17b346;
+  color: white;
+  max-width: 300px;
+  display: flex;
+  justify-content: space-between;
+}
+.deployedError {
+  background: #d64f4f;
+  color: white;
+  max-width: 300px;
+  display: flex;
+  justify-content: space-between;
 }
 </style>

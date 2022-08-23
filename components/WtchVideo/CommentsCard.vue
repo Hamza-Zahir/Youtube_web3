@@ -7,7 +7,8 @@
             v-if="!comment.owner.profileImag"
             :to="`/Userschanel/${comment.owner.id}`"
             class="userProfil text-light rounded-circle d-flex justify-content-center align-items-center fw-bold mr-2 mt-1"
-          >
+           :style="`background:${
+            plugins.stringToColour(comment.owner.userName)}`"   >
             {{ comment.owner.userName[0] }}
           </nuxt-link>
           <nuxt-link
@@ -90,7 +91,8 @@
             <span
               v-if="!User.profileImag"
               class="userProfil text-light rounded-circle d-flex justify-content-center align-items-center mr-2 mt-1"
-            >
+             :style="`background:${
+            plugins.stringToColour(User.userName)}`" >
               {{ User.userName[0] }}
             </span>
             <span
@@ -206,6 +208,7 @@ export default {
       Reply: "",
       showReplies: false,
       addReplyInput: false,
+      plugins
     };
   },
   computed: {
@@ -286,7 +289,6 @@ export default {
 
 <style lang="scss" scoped>
 .userProfil {
-  background: #41a7fa;
   width: 35px;
   height: 35px;
 }

@@ -11,9 +11,12 @@
           <div class="h-100 border d-flex flex-column justify-content-between">
             <videoCard :video="video" class="h-100" />
             <div class="text-right">
-              <div class="btn btn-secondary py-1 px-2 m-1"
-              @click="deleteVideo(video.id)"
-              >Delet</div>
+              <div
+                class="btn btn-secondary py-1 px-2 m-1"
+                @click="deleteVideo(video.id)"
+              >
+                Delet
+              </div>
             </div>
           </div>
         </div>
@@ -35,42 +38,51 @@
         >DOWNLOAD VIDEO</nuxt-link
       >
     </div>
+    <span v-if="User.userVideos.length" class="d-none">{{
+      getUserVideos()
+    }}</span>
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import Header from "~/components/UserProfil/header.vue";
 import plugins from "~/plugins";
 export default {
   data() {
     return {
       userVideos: [],
+      userVideosIds: [],
     };
   },
   computed: {
     ...mapGetters(["CurrentAccount"]),
     ...mapGetters(["User"]),
   },
-  mounted() {
-    this.getUserVideos();
-  },
-  methods: {
-    async getUserVideos() {
-      if (this.User.userVideos.length) {
-        for (let i = 0; i < this.User.userVideos.length; i++) {
-          const _video = await plugins.getVideo(this.User.userVideos[i]);
 
-          this.userVideos.push(_video);
+  methods: {
+    ...mapMutations(["setUser"]),
+    async getUserVideos() {
+      for (let i = 0; i < this.User.userVideos.length; i++) {
+        const _video = await plugins.getVideo(this.User.userVideos[i]);
+        if (
+          this.User.userVideos[i] > 0 &&
+          !this.userVideosIds.includes(this.User.userVideos[i])
+        ) {
+          this.userVideosIds.push(this.User.userVideos[i]);
+          this.userVideos.unshift(_video);
         }
       }
     },
-    async deleteVideo(_videoId){
-       try {
+    async deleteVideo(_videoId) {
+      try {
         if (this.CurrentAccount) {
           await plugins
             .deleteVideo(Number(_videoId), this.CurrentAccount)
             .then(async () => {
-              await this.getUserVideos();
+              const _user = await plugins.getUserByAddress(this.CurrentAccount);
+              this.setUser(_user);
+              this.userVideos = [];
+              this.userVideosIds = [];
             });
         } else {
           alert("please connect your wallet first");
@@ -78,7 +90,7 @@ export default {
       } catch (error) {
         console.log(error);
       }
-    }
+    },
   },
   components: { Header },
 };
@@ -86,6 +98,7 @@ export default {
 <style lang="scss" scoped>
 .impty {
   background: #161616;
+  min-height: 100vh;
   img {
     max-width: 250px;
   }

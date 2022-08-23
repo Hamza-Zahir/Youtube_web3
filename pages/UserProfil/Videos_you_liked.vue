@@ -55,7 +55,7 @@ export default {
             if (
               video.likes[i] === this.CurrentAccount && !this.LikedVideos.includes(video)
             ) {
-              this.LikedVideos.push(video);
+              this.LikedVideos.unshift(video);
             }
           }
         }
@@ -68,6 +68,7 @@ export default {
 <style lang="scss" scoped>
 .impty {
   background: #161616;
+  min-height: 100%;
   img {
     max-width: 250px;
   }

@@ -107,10 +107,13 @@ const actions = {
       disconnect();
     };
     // ......................................
+
     ethereum.on("accountsChanged", handleAccountsChanged);
     ethereum.on("chainChanged", handleChainChanged);
     ethereum.on("disconnect", handleDisconnect);
   },
+
+
 };
 const mutations = {
   setCurrentAccount: (state, addres) => (state.CurrentAccount = addres),

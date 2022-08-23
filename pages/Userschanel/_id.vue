@@ -5,7 +5,8 @@
         <h1
           v-if="!user.profileImag"
           class="rounded-circle ml-1 ml-sm-3 cp userProfil d-flex justify-content-center align-items-center fw-bold text-light"
-        >
+       :style="`background:${
+            plugins.stringToColour(user.userName)}`" >
           {{ user.userName[0] }}
         </h1>
         <h1
@@ -13,6 +14,7 @@
           class="rounded-circle ml-1 ml-sm-3 cp userProfil d-flex justify-content-center align-items-center fw-bold text-light"
         >
           <img
+            v-if="user"
             :src="`https://ipfs.io/ipfs/${user.profileImag}`"
             alt=""
             class="w-100 h-100 rounded-circle"
@@ -29,7 +31,7 @@
         </div>
       </div>
     </div>
-    <div v-if="userVideos.length" class="container">
+    <div v-if="user && userVideos.length" class="container">
       <div class="d-flex flex-wrap mt-3 justify-content-center">
         <div
           class="py-2 col-12 col-sm-6 col-lg-4 col-xl-3"
@@ -43,7 +45,7 @@
       </div>
     </div>
     <div
-      v-if="!user.userVideos.length"
+      v-if="user && !user.userVideos.length"
       class="impty text-center py-5 px-3 container"
     >
       <img
@@ -56,12 +58,13 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
-import plugins from "../../plugins";
+import plugins from "~/plugins";
 export default {
   data() {
     return {
       user: "",
       userVideos: [],
+      plugins
     };
   },
   computed: {
@@ -78,7 +81,9 @@ export default {
       if (_user.userVideos.length > 0) {
         for (let i = 0; i < _user.userVideos.length; i++) {
           const _video = await plugins.getVideo(_user.userVideos[i]);
-          this.userVideos.push(_video);
+          if (_video.id > 0) {
+            this.userVideos.unshift(_video);
+          }
         }
       }
     },
@@ -89,7 +94,6 @@ export default {
 .userProfil {
   width: 75px;
   height: 75px;
-  background: #028363;
 }
 .impty {
   img {

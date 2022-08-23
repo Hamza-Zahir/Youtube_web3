@@ -12,6 +12,8 @@ const getYoutubeContract = async () => {
 getYoutubeContract();
 
 export default {
+
+
   /*..........................  signUp  .................................. */
 
   async signUp(_userName, _profileImag, _currentAccount) {
@@ -19,8 +21,10 @@ export default {
       await YoutubeContract.methods
         .signUp(_userName, _profileImag)
         .send({ from: _currentAccount });
+        return true
     } catch (error) {
       console.log(error);
+      return false
     }
   },
   async getUserByAddress(_userAddress) {
@@ -64,7 +68,28 @@ export default {
       console.log(error);
     }
   },
-
+  async changeProfileImag(_imgHash, _currentAccount) {
+    try {
+      await YoutubeContract.methods
+        .changeProfileImag(_imgHash)
+        .send({ from: _currentAccount });
+        return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  },
+  async changeName(_newUserName, _currentAccount) {
+    try {
+      await YoutubeContract.methods
+        .changeName(_newUserName)
+        .send({ from: _currentAccount });
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  },
   /*..........................  video functions  .................................. */
 
   async downlodVideo(_videoHash, _videoTayp, _videoTitle, _currentAccount) {
@@ -72,8 +97,10 @@ export default {
       await YoutubeContract.methods
         .downloadVideo(_videoHash, _videoTayp, _videoTitle)
         .send({ from: _currentAccount });
+      return true;
     } catch (error) {
       console.log(error);
+      return false;
     }
   },
   async likeVideo(_videoId, _currentAccount) {
@@ -278,4 +305,21 @@ export default {
       .dislikeReply(_videoId, _commentId, _replyId)
       .send({ from: _currentAccount });
   },
+
+
+
+// ..............................................................................
+
+  stringToColour(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let colour = '#';
+    for (let i = 0; i < 3; i++) {
+      let value = (hash >> (i * 8)) & 0xFF;
+      colour += ('00' + value.toString(16)).substr(-2);
+    }
+    return colour;
+  }
 };

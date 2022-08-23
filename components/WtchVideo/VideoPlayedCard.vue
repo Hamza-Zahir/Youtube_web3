@@ -6,8 +6,12 @@
           :src="`https://ipfs.io/ipfs/${video.videoHash}`"
           class="m-0 mx-auto h-100 rounded"
         ></video>
-
-        <b-icon icon="play-circle" class="h1 m-0 cp mt-1 icon"></b-icon>
+        <div class="icon">
+          <span class="span span-1"></span>
+          <span class="span span-2"></span>
+          <span class="span span-3"></span>
+          <span class="span span-4"></span>
+        </div>
       </div>
     </nuxt-link>
     <div class="mb-2 pl-1 d-flex justify-content-between fw-bold">
@@ -31,7 +35,7 @@
           :to="`/Userschanel/${video.owner.id}`"
           class=""
         >
-          <span class="userimg cp rounded-circle d-block mr-2 mt-1 ml-0 p-0">
+          <span class="userProfil cp rounded-circle d-block mr-2 mt-1 ml-0 p-0">
             <img
               :src="`https://ipfs.io/ipfs/${video.owner.profileImag}`"
               alt=""
@@ -86,11 +90,6 @@ export default {
 <style lang="scss" scoped>
 .video_card {
   .userProfil {
-    // background: #4163fa;
-    width: 30px;
-    height: 30px;
-  }
-  .userimg {
     width: 30px;
     height: 30px;
   }
@@ -106,10 +105,42 @@ export default {
 
     .icon {
       position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 50px;
       font-size: 70px;
+      background: #535353d5;
+      overflow: hidden;
+      span {
+        display: inline-block;
+        border: 5px solid;
+        border-color: white transparent transparent transparent;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .span-1 {
+        width: 90px;
+        height: 90px;
+        top: 5px;
+      }
+        .span-2 {
+        width: 70px;
+        height: 70px;
+        top: 15px;
+      }
+        .span-3 {
+        width: 50px;
+        height: 50px;
+        top: 25px;
+      }
+        .span-4 {
+        width: 30px;
+        height: 30px;
+        top: 35px;
+      }
     }
   }
   .title {
