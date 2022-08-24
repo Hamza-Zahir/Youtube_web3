@@ -30,6 +30,7 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/bootstrap
     "bootstrap-vue/nuxt",
+    '@nuxtjs/dotenv'
   ],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
@@ -37,10 +38,6 @@ export default {
   bootstrapVue: {
     icons: true,
   },
-  env: {
-    apiToken: process.env.API_TOKEN,
-  },
-
   generate: {
     routes() {
       const Allphat = [];

@@ -106,8 +106,8 @@
 import { mapActions, mapGetters } from "vuex";
 import Header from "~/components/UserProfil/Header.vue";
 import plugins from "~/plugins";
-const apiToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDc2MjZiNDgwMjk4RjYwRTJEREFmNjQwOEM0M2ExZUVkMjk2Qzg1RmIiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjA5MjUyNzg4ODksIm5hbWUiOiJ5b3V0dWJlX3dlYjMifQ.slLeKvOZA6bY4jadot3YkzUdx9_Ki-HsknM3BJdHV28";
+
+const apiToken = process.env.API_TOKEN;
 
 export default {
   data() {

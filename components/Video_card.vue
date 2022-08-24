@@ -49,17 +49,47 @@
           }}</small>
         </div>
       </div>
-
-      <b-icon icon="three-dots-vertical" class="h5 m-0 cp mt-1"></b-icon>
+      <div class="select">
+        <div
+          v-if="showOptions"
+          class="options"
+          @click="showOptions = !showOptions"
+        >
+          <span
+            v-if="!video.likes.includes(CurrentAccount) && !like"
+            @click="likeVideo(video.id)"
+            >like video</span
+          >
+          <span
+            v-if="!User.videoSaved.includes(video.id.toString()) && !save"
+            @click="saveVideo(video.id)"
+            >save video</span
+          >
+        </div>
+        <b-icon
+          icon="three-dots-vertical"
+          class="h5 m-0 cp mt-1"
+          :class="`showOptions-${video.id}`"
+          @click="
+            () => {
+              ShowOptions(`showOptions-${video.id}`);
+            }
+          "
+        ></b-icon>
+      </div>
     </div>
   </div>
 </template>
 <script>
+import { mapActions, mapGetters } from "vuex";
 import plugins from "~/plugins";
 export default {
   data() {
     return {
       plugins,
+      showOptions: false,
+      like: false,
+      save: false,
     };
   },
   props: {
@@ -68,8 +98,51 @@ export default {
       type: Object,
     },
   },
+  computed: {
+    ...mapGetters(["CurrentAccount"]),
+    ...mapGetters(["User"]),
+  },
 
   methods: {
+    async likeVideo(_videoId) {
+      try {
+        if (this.CurrentAccount) {
+          this.like = true;
+          await plugins
+            .likeVideo(Number(_videoId), this.CurrentAccount)
+            .then(async (status) => {
+              if (!status) {
+                this.like = false;
+              }
+            });
+        } else {
+          alert("please connect your wallet first");
+        }
+      } catch (error) {
+        console.log(error);
+        this.like = false;
+      }
+    },
+    async saveVideo(_videoId) {
+      try {
+        if (this.CurrentAccount) {
+          this.save = true;
+          await plugins
+            .saveVideo(Number(_videoId), this.CurrentAccount)
+            .then(async (status) => {
+              if (!status) {
+                this.save = false;
+              }
+            });
+        } else {
+          alert("please connect your wallet first");
+        }
+      } catch (error) {
+        console.log(error);
+        this.save = false;
+      }
+    },
+
     formatDate(timestamp) {
       const date = new Date(timestamp);
 
@@ -79,6 +152,16 @@ export default {
         date.getMonth().toString().length == 1 ? "0" : ""
       }${date.getMonth()}/${date.getFullYear()}`;
     },
+    async headOptions(_class) {
+      document.addEventListener("click", (e) => {
+        if (!e.target.classList.contains(_class)) this.showOptions = false;
+      });
+    },
+    async ShowOptions(_class) {
+      await this.headOptions(_class).then(
+        (this.showOptions = !this.showOptions)
+      );
+    },
   },
 };
 </script>
@@ -86,7 +169,6 @@ export default {
 <style lang="scss" scoped>
 .video_card {
   .userProfil {
-    // background: #4163fa;
     width: 30px;
     height: 30px;
   }
@@ -124,6 +206,27 @@ export default {
   }
   .fs-12 {
     font-size: 12px;
+  }
+  .select {
+    position: relative;
+    .options {
+      position: absolute;
+      width: 120px;
+      right: 10px;
+      bottom: 100%;
+      background: #383838e7;
+      border-bottom: 1px solid #9b9b9b8c;
+
+      span {
+        display: block;
+        padding: 5px;
+        border-top: 1px solid #9b9b9b8c;
+        &:hover {
+          background: rgba(0, 0, 0, 0.575);
+          cursor: pointer;
+        }
+      }
+    }
   }
 }
 </style>

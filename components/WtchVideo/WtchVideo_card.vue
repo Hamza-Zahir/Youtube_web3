@@ -5,7 +5,7 @@
       controls
       autoplay
       class="mx-auto w-100 rounded"
-      @ended="playAderVedo()"
+      @ended="playOtherVideo()"
     ></video>
     <div class="px-2">
       <h4 class="title my-1">
@@ -193,6 +193,7 @@
             :comment="comment"
             :videoId="Number(ShownVideo.id)"
             :getVideo="getVideo"
+            :videoOwner="ShownVideo.owner.userAddress"
           />
         </div>
       </div>
@@ -312,7 +313,7 @@ export default {
         date.getMonth().toString().length == 1 ? "0" : ""
       }${date.getMonth()}/${date.getFullYear()}`;
     },
-    playAderVedo() {
+    playOtherVideo() {
       const href = window.location.href.split("WtchVideo/");
       let videoId = Number(href[1]);
       const lastVideoId = Number(this.AllVideos[0].id);

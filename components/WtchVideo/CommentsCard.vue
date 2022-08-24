@@ -82,6 +82,9 @@
             <small class="fs-12 ml-4 cp" @click="addReplyInput = !addReplyInput"
               >Reply</small
             >
+             <small v-if="comment.owner.userAddress == CurrentAccount || videoOwner == CurrentAccount" class="fs-12 ml-4 cp text-secondary" @click="deletComment()"
+              >delete</small
+            >
           </div>
 
           <div
@@ -174,6 +177,7 @@
                   :videoId="Number(videoId)"
                   :commentId="Number(comment.id)"
                   :getVideo="getVideo"
+                  :videoOwner="videoOwner"
                 />
               </div>
             </div>
@@ -198,6 +202,10 @@ export default {
       required: true,
       type: Number,
     },
+     videoOwner: {
+      required: true,
+      type: String,
+    },
     getVideo: {
       required: true,
       type: Function,
@@ -217,6 +225,21 @@ export default {
   },
   mounted() {},
   methods: {
+     async deletComment() {
+      try {
+        await plugins
+          .deletComment(
+            this.videoId,
+            Number(this.comment.id),
+            this.CurrentAccount
+          )
+          .then(async () => {
+            await this.getVideo();
+          });
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async addReply() {
       try {
         await plugins

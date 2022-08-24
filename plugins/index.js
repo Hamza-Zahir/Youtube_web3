@@ -247,6 +247,11 @@ export default {
     }
     return _videoComments.reverse();
   },
+  async deletComment(_videoId, _commentId, _currentAccount) {
+    await YoutubeContract.methods
+      .deletComment(_videoId, _commentId)
+      .send({ from: _currentAccount });
+  },
 
   /*..........................  Replies functions  .................................. */
 
@@ -306,7 +311,11 @@ export default {
       .send({ from: _currentAccount });
   },
 
-
+  async deletReply(_videoId, _commentId, _replyId, _currentAccount) {
+    await YoutubeContract.methods
+      .deletReply(_videoId, _commentId, _replyId)
+      .send({ from: _currentAccount });
+  },
 
 // ..............................................................................
 

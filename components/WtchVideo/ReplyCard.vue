@@ -70,6 +70,10 @@
                 class="m-0"
               ></b-icon>
             </span>
+            >
+             <small v-if="reply.owner.userAddress == CurrentAccount || videoOwner == CurrentAccount" class="fs-12 ml-4 cp text-secondary" @click="deletReply()"
+              >delete</small
+            >
           </div>
         </div>
       </div>
@@ -94,6 +98,10 @@ export default {
       required: true,
       type: Number,
     },
+    videoOwner: {
+      required: true,
+      type: String,
+    },
     getVideo: {
       required: true,
       type: Function,
@@ -109,6 +117,22 @@ export default {
 
   mounted() {},
   methods: {
+     async deletReply() {
+      try {
+        await plugins
+          .deletReply(
+            this.videoId,
+              this.commentId,
+              this.reply.id,
+              this.CurrentAccount
+          )
+          .then(async () => {
+            await this.getVideo();
+          });
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async likeReply() {
       try {
         if (this.CurrentAccount) {
